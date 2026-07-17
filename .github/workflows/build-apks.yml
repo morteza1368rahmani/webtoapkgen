@@ -12,12 +12,18 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Unzip project (only if the project was uploaded as a zip)
+      - name: Unzip project (always fresh, to avoid stale leftovers)
         run: |
-          if [ -f WebToApkGen.zip ] && [ ! -d WebToApkGen ]; then
-            unzip -q WebToApkGen.zip
+          if [ ! -f WebToApkGen.zip ]; then
+            echo "::error::WebToApkGen.zip not found at repo root."
+            echo "Files currently in repo root:"
+            ls -la
+            exit 1
           fi
-          ls -la
+          rm -rf WebToApkGen
+          unzip -q WebToApkGen.zip
+          echo "Extracted contents:"
+          find WebToApkGen -maxdepth 2
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
